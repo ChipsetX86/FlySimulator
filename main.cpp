@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     QMap<QPoint, quint64> startPos;
     startPos[QPoint(0, 0)] = 2;
     startPos[QPoint(2, 2)] = 5;
+    startPos[QPoint(4, 4)] = 10;
     AppSettings settings{QSize(5, 5), 5, 5, startPos};
     AppEngine flySimulator(settings, &app);
     engine.rootContext()->setContextProperty(QStringLiteral("flySimulator"), &flySimulator);

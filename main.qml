@@ -30,7 +30,7 @@ Window {
                 anchors.centerIn: parent
             }
 
-            Row {
+            Grid {
                 Repeater {
                     model: display.countDead
                     Image {
