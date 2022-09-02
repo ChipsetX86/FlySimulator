@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>mucha_live.svg</file>
+        <file>mucha_dead.svg</file>
+    </qresource>
+</RCC>
