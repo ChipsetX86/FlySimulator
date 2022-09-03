@@ -12,6 +12,7 @@ Window {
     title: qsTr("Fly Simulator")
 
     TableView {
+        id: mainTable
         anchors.fill: parent
         columnSpacing: 1
         rowSpacing: 1
@@ -20,8 +21,8 @@ Window {
         model: flySimulator.plotTableModel
 
         delegate: Rectangle {
-            implicitWidth: (mainWindow.width - 100) / 5
-            implicitHeight: (mainWindow.height - 100) / 5
+            implicitWidth: (mainWindow.width - 100) / flySimulator.plotSize.width
+            implicitHeight: (mainWindow.height - 100) / flySimulator.plotSize.height
             border.width: 2
             border.color: Qt.color("orange")
 
@@ -31,22 +32,19 @@ Window {
             }
 
             Grid {
+                padding: 5
+
                 Repeater {
-                    model: display.countDead
-                    Image {
-                        source: "mucha_dead.svg"
-                        width: 10
-                        height: 10
+                    model: display
+                    Row{
+                        Image {
+                            source: display[index].icon
+                            width: 23
+                            height: 23
+                        }
                     }
                 }
-                Repeater {
-                    model: display.countLive
-                    Image {
-                        source: "mucha_live.svg"
-                        width: 20
-                        height: 20
-                    }
-                }
+
             }
 
             MouseArea {
@@ -68,5 +66,5 @@ Window {
     }
 
     Component.onCompleted: flySimulator.startSimulation()
-    Component.onDestruction: flySimulator.stopSimulation()
+    //Component.onDestruction: flySimulator.stopSimulation()
 }

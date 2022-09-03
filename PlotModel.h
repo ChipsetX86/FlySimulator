@@ -8,15 +8,6 @@
 
 class Mucha;
 
-struct CellInfo {
-    Q_GADGET
-    Q_PROPERTY(qint64 countLive MEMBER countLive)
-    Q_PROPERTY(qint64 countDead MEMBER countDead)
-public:
-    qint64 countLive = 0;
-    qint64 countDead = 0;
-};
-
 class PlotModel: public QAbstractTableModel
 {
     Q_OBJECT

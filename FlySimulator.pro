@@ -35,6 +35,3 @@ HEADERS += \
 
 QML_IMPORT_NAME = io.qt.backend
 QML_IMPORT_MAJOR_VERSION = 1
-
-DISTFILES += \
-    mucha.svg

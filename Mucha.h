@@ -6,6 +6,8 @@
 #include <QSize>
 #include <QRandomGenerator>
 #include <QDateTime>
+#include <QMutexLocker>
+#include <QMutex>
 #include <QtQml/qqml.h>
 
 class AppEngine;
@@ -23,16 +25,17 @@ class Mucha : public QObject
     Q_PROPERTY(QPoint position READ position NOTIFY positionChanged)
     Q_PROPERTY(quint64 ageSec READ ageSec)
     Q_PROPERTY(float meanSpeedCellsInSec READ meanSpeedCellsInSec)
+    Q_PROPERTY(QString icon READ icon CONSTANT)
     QML_ELEMENT
-    QML_SINGLETON
 public:
     explicit Mucha(const MuchaSettings& settings, AppEngine *appEngine, QObject *parent = nullptr);
     virtual ~Mucha();
 
     bool isDead() const;
-    QPoint position() const;
+    QPoint position();
     quint64 ageSec() const;
     float meanSpeedCellsInSec() const;
+    QString icon() const;
 
 public slots:
     void startFly();
@@ -40,6 +43,7 @@ public slots:
 signals:
     void statusDeadChanged(bool) const;
     void positionChanged(QPoint from, QPoint to) const;
+    void iconChanged() const;
 
 private:
      QSize m_plotSize;
@@ -50,8 +54,10 @@ private:
      quint64 m_countMovement;
      AppEngine *m_appEngine;
      QRandomGenerator m_random;
-
+     uint m_randomIcon;
      void setIsDead(const bool);
+     void setPosition(const QPoint &point);
+     QMutex m_mutexPos;
 };
 
 #endif // MUCHA_H

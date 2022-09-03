@@ -9,7 +9,7 @@ AppEngine::AppEngine(const AppSettings &settings, QObject *parent) :
 {
     for (int i = 0; i < m_settings.plotSize.width(); ++i) {
         for (int j = 0; j < m_settings.plotSize.height(); ++j) {
-            m_plot[QPoint(i,j)] = 0;
+            m_plot[QPoint(i, j)] = 0;
         }
     }
 }
@@ -21,7 +21,10 @@ AppEngine::~AppEngine()
 
 bool AppEngine::flyToCell(const QPoint &from, const QPoint &to)
 {
-    if (m_settings.plotSize.width() <= to.x() || m_settings.plotSize.height() <= to.y()) {
+    if (m_settings.plotSize.width() <= to.x() ||
+            m_settings.plotSize.height() <= to.y() ||
+            to.x() < 0 ||
+            to.y() < 0) {
         return false;
     }
 

@@ -1,7 +1,8 @@
 #include "PlotModel.h"
-#include "Mucha.h"
 
-Q_DECLARE_METATYPE(CellInfo);
+#include <QList>
+
+#include "Mucha.h"
 
 PlotModel::PlotModel(const QSize &size, QObject *parent):
     QAbstractTableModel(parent),
@@ -14,23 +15,15 @@ QVariant PlotModel::data(const QModelIndex &index, int role) const
 {
     switch (role) {
         case Qt::DisplayRole: {
-            CellInfo info;
+            QObjectList list;
             for (const auto m: listMucha) {
-
-                if (m->position().x() == index.row() &&
-                        m->position().y() == index.column()) {
-                    auto isDead = m->isDead();
-                    if (isDead) {
-                        info.countDead++;
-                    } else {
-                        info.countLive++;
-                    }
-
-
+                auto pos = m->position();
+                if (pos.x() == index.column() && pos.y() == index.row()) {
+                     list.append(m);
                 }
             }
 
-            return QVariant::fromValue(info);
+            return QVariant::fromValue(list);
         }
         default:
             break;
@@ -60,19 +53,19 @@ void PlotModel::addMucha(Mucha *m)
 {
     listMucha.push_back(m);
     connect(m, &Mucha::statusDeadChanged, [this, m]() {
-        emit dataChanged(index(m->position().x(), m->position().y()),
-                         index(m->position().x(), m->position().y()));
+        emit dataChanged(index(m->position().y(), m->position().x()),
+                         index(m->position().y(), m->position().x()));
     });
     connect(m, &Mucha::positionChanged, [this](QPoint from, QPoint to) {
-        emit dataChanged(index(from.x(), from.y()),
-                         index(from.x(), from.y()), {Qt::DisplayRole});
-        emit dataChanged(index(to.x(), to.y()),
-                         index(to.x(), to.y()), {Qt::DisplayRole});
+        emit dataChanged(index(from.y(), from.x()),
+                         index(from.y(), from.x()), {Qt::DisplayRole});
+        emit dataChanged(index(to.y(), to.x()),
+                         index(to.y(), to.x()), {Qt::DisplayRole});
     });
 
     auto pos = m->position();
-    emit dataChanged(index(pos.x(), pos.y()),
-                     index(pos.x(), pos.y()));
+    emit dataChanged(index(pos.y(), pos.x()),
+                     index(pos.y(), pos.x()));
 }
 
 void PlotModel::takeAwayMucha(Mucha *m)
