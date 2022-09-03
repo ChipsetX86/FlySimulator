@@ -13,22 +13,19 @@
 class AppEngine;
 
 struct MuchaSettings {
-    QSize plotSize;
     quint64 flightPlanningTimeSec;
-    QPoint startPos;
 };
 
 class Mucha : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isDead READ isDead NOTIFY statusDeadChanged)
-    Q_PROPERTY(QPoint position READ position NOTIFY positionChanged)
     Q_PROPERTY(quint64 ageSec READ ageSec)
     Q_PROPERTY(float meanSpeedCellsInSec READ meanSpeedCellsInSec)
     Q_PROPERTY(QString icon READ icon CONSTANT)
     QML_ELEMENT
 public:
-    explicit Mucha(const MuchaSettings& settings, AppEngine *appEngine, QObject *parent = nullptr);
+    explicit Mucha(const MuchaSettings& settings, QObject *parent = nullptr);
     virtual ~Mucha();
 
     bool isDead() const;
@@ -36,13 +33,14 @@ public:
     quint64 ageSec() const;
     float meanSpeedCellsInSec() const;
     QString icon() const;
+    void increaseMovement();
 
 public slots:
     void startFly();
     void stopFly();
 signals:
     void statusDeadChanged(bool) const;
-    void positionChanged(QPoint from, QPoint to) const;
+    void positionChanged(const QPoint diff) const;
     void iconChanged() const;
 
 private:

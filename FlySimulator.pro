@@ -9,7 +9,6 @@ CONFIG += c++17 qmltypes
 SOURCES += \
         AppEngine.cpp \
         Mucha.cpp \
-        PlotModel.cpp \
         main.cpp
 
 RESOURCES += qml.qrc
@@ -30,8 +29,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     AppEngine.h \
-    Mucha.h \
-    PlotModel.h
+    Mucha.h
 
 QML_IMPORT_NAME = io.qt.backend
 QML_IMPORT_MAJOR_VERSION = 1

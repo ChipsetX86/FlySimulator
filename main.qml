@@ -18,7 +18,7 @@ Window {
         rowSpacing: 1
         clip: false
 
-        model: flySimulator.plotTableModel
+        model: flySimulator
 
         delegate: Rectangle {
             implicitWidth: (mainWindow.width - 100) / flySimulator.plotSize.width
@@ -65,6 +65,6 @@ Window {
         onClicked: flySimulator.stopSimulation()
     }
 
-    Component.onCompleted: flySimulator.startSimulation()
+    //Component.onCompleted: flySimulator.startSimulation()
     //Component.onDestruction: flySimulator.stopSimulation()
 }
