@@ -44,7 +44,7 @@ ApplicationWindow {
                                 }
                                 Text {
                                     text: "age: " + Number(display[index].ageSec).toString();
-                                    visible: flySimulator.isStoped
+                                    visible:  flySimulator.isStoped
                                 }
                                 Image {
                                     source: display[index].icon
@@ -123,11 +123,24 @@ ApplicationWindow {
                     anchors.right: parent.right
                 }
 
+                Text {
+                    text: "Start position, format 0:2:3..."
+                }
+
+                TextEdit {
+                    id: startPosition
+                    padding: 5
+                    text: "2:2:2:0:0:0:0:0:0"
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                }
+
                 Button {
                     id: buttonStart
                     text: "Start"
                     onClicked: {
                         console.log("Click start");
+                        flySimulator.setStartPosition(startPosition.text)
                         flySimulator.flightPlanningTimeSec =
                                 timeFlyPlaningimulation.value
                         flySimulator.plotSize =

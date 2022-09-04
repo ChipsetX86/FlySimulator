@@ -90,6 +90,7 @@ void AppEngine::startSimulation()
     }
 
     for (auto const &pos: m_settings.startPositionInPlot.keys()) {
+        qDebug() << "create" << pos << m_settings.startPositionInPlot.value(pos);
         auto const countMucha = m_settings.startPositionInPlot.value(pos);
         for (quint64 i = 0; i < countMucha; ++i) {
             auto thread = new QThread(this);
@@ -101,7 +102,7 @@ void AppEngine::startSimulation()
             connect(mucha, &Mucha::positionChanged, this, &AppEngine::flyMucha, Qt::QueuedConnection);
 
             connect(thread, &QThread::started, mucha, &Mucha::startFly);
-            connect(this, &AppEngine::simulationStoped, mucha, &Mucha::stopFly, Qt::DirectConnection);
+            connect(this, &AppEngine::simulationStartStoped, mucha, &Mucha::stopFly, Qt::DirectConnection);
             connect(mucha, &Mucha::flyStoped, thread, &QThread::quit);
 
             connect(mucha, &Mucha::statusDeadChanged, [this](const bool isDead) {
@@ -130,7 +131,7 @@ void AppEngine::startSimulation()
 void AppEngine::stopSimulation()
 {
     QMutexLocker m(&m_mutexStop);
-    emit simulationStoped();
+    emit simulationStartStoped();
 
     if (m_poolThreadMucha.isEmpty()) {
         return;
@@ -142,6 +143,8 @@ void AppEngine::stopSimulation()
     }
 
     m_poolThreadMucha.clear();
+
+    emit simulationStoped();
 }
 
 QVariant AppEngine::data(const QModelIndex &index, int role) const
@@ -187,4 +190,22 @@ void AppEngine::setFlightPlanningTimeSec(const quint64 s)
 bool AppEngine::isStoped() const
 {
     return m_poolThreadMucha.isEmpty();
+}
+
+void AppEngine::setStartPosition(const QString &map)
+{
+    m_settings.startPositionInPlot.clear();
+    auto list = map.split(":");
+    for (int i = 0; i < m_settings.plotSize.width(); ++i) {
+        for (int j = 0; j < m_settings.plotSize.height(); ++j) {
+            if (list.isEmpty()) {
+                m_settings.startPositionInPlot[QPoint(i, j)] = 0;
+            } else {
+                qDebug() << list.first().toInt();
+                m_settings.startPositionInPlot[QPoint(i, j)] = list.first().toInt();
+                list.pop_front();
+            }
+        }
+    }
+
 }

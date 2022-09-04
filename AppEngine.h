@@ -8,16 +8,18 @@
 #include <QThread>
 #include <QMutexLocker>
 #include <QMutex>
-#include <QMap>
+#include <QHash>
 #include <QAbstractTableModel>
 
 #include "Mucha.h"
+
+using StartMap = QHash<QPoint, quint64>;
 
 struct AppSettings {
     QSize plotSize;
     qsizetype maxMuchaInCell;
     quint64 flightPlanningTimeSec;
-    QMap<QPoint, quint64> startPositionInPlot;
+    StartMap startPositionInPlot;
 };
 
 class AppEngine: public QAbstractTableModel
@@ -37,6 +39,7 @@ public:
     QSize plotSize() const;
     void setPlotSize(QSize s);
     bool isStoped() const;
+    Q_INVOKABLE void setStartPosition(const QString &map);
 
     quint64 flightPlanningTimeSec() const;
     void setFlightPlanningTimeSec(const quint64 s);
@@ -49,6 +52,7 @@ public slots:
     void flyMucha(const QPoint &diff);
 signals:
     void simulationStarted() const;
+    void simulationStartStoped() const;
     void simulationStoped() const;
 private:
     QList<QThread*> m_poolThreadMucha;
