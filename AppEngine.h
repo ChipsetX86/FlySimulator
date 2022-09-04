@@ -23,17 +23,23 @@ struct AppSettings {
 class AppEngine: public QAbstractTableModel
 {
     Q_OBJECT
-    Q_PROPERTY(QSize plotSize READ plotSize CONSTANT)
+    Q_PROPERTY(QSize plotSize READ plotSize WRITE setPlotSize)
+    Q_PROPERTY(bool isStoped READ isStoped NOTIFY simulationStoped)
+    Q_PROPERTY(quint64 flightPlanningTimeSec READ flightPlanningTimeSec WRITE setFlightPlanningTimeSec)
     QML_ELEMENT
     QML_ADDED_IN_MINOR_VERSION(1)
-    QML_SINGLETON
 public:
-    explicit AppEngine(const AppSettings &settings, QObject *parent = nullptr);
+    explicit AppEngine(const AppSettings &settings = AppSettings(), QObject *parent = nullptr);
     virtual ~AppEngine();
 
     Q_INVOKABLE void startSimulation();
     Q_INVOKABLE void stopSimulation();
     QSize plotSize() const;
+    void setPlotSize(QSize s);
+    bool isStoped() const;
+
+    quint64 flightPlanningTimeSec() const;
+    void setFlightPlanningTimeSec(const quint64 s);
 
     int rowCount(const QModelIndex & = QModelIndex()) const override;
     int columnCount(const QModelIndex & = QModelIndex()) const override;

@@ -1,16 +1,14 @@
 #include "AppEngine.h"
 
+#include <QDebug>
+
 #include "Mucha.h"
 
 AppEngine::AppEngine(const AppSettings &settings, QObject *parent) :
     QAbstractTableModel(parent),
     m_settings(settings)
 {
-    for (int i = 0; i < m_settings.plotSize.width(); ++i) {
-        for (int j = 0; j < m_settings.plotSize.height(); ++j) {
-            m_plot[QPoint(i, j)] = QObjectList{};
-        }
-    }
+
 }
 
 AppEngine::~AppEngine()
@@ -20,7 +18,6 @@ AppEngine::~AppEngine()
 
 void AppEngine::flyMucha(const QPoint &diff)
 {
-    qDebug() << diff;
     if (diff.x() < -1 || diff.y() < -1 || diff.x() > 1 || diff.y() > 1) {
         return;
     }
@@ -69,34 +66,51 @@ QSize AppEngine::plotSize() const
     return m_settings.plotSize;
 }
 
+void AppEngine::setPlotSize(QSize s)
+{
+    m_settings.plotSize = s;
+}
+
 void AppEngine::startSimulation()
 {
     QMutexLocker m(&m_mutexStart);
-    qDebug() << "Start simulation";
+    qDebug() << "Start simulation" << m_settings.plotSize;
 
     stopSimulation();
+
+    for (auto& m: m_plot) {
+        qDeleteAll(m);
+        m.clear();
+    }
+
+    for (int i = 0; i < m_settings.plotSize.width(); ++i) {
+        for (int j = 0; j < m_settings.plotSize.height(); ++j) {
+            m_plot[QPoint(i, j)] = QObjectList{};
+        }
+    }
 
     for (auto const &pos: m_settings.startPositionInPlot.keys()) {
         auto const countMucha = m_settings.startPositionInPlot.value(pos);
         for (quint64 i = 0; i < countMucha; ++i) {
             auto thread = new QThread(this);
-            auto mucha = new Mucha(MuchaSettings{m_settings.flightPlanningTimeSec});
+            auto mucha = new Mucha(m_settings.flightPlanningTimeSec,
+                                   m_settings.flightPlanningTimeSec * m_settings.plotSize.width());
 
             m_plot[pos].push_back(mucha);
             m_poolThreadMucha.append(thread);
             connect(mucha, &Mucha::positionChanged, this, &AppEngine::flyMucha, Qt::QueuedConnection);
-            //connect(thread, &QThread::finished, mucha, &QObject::deleteLater);
+
             connect(thread, &QThread::started, mucha, &Mucha::startFly);
             connect(this, &AppEngine::simulationStoped, mucha, &Mucha::stopFly, Qt::DirectConnection);
-            connect(mucha, &Mucha::statusDeadChanged, [thread](bool isDead) {
-                if (isDead) {
-                    thread->quit();
-                }
-            });
+            connect(mucha, &Mucha::flyStoped, thread, &QThread::quit);
 
-            connect(mucha, &Mucha::statusDeadChanged, [this, mucha]() {
-                emit dataChanged(index(mucha->position().y(), mucha->position().x()),
-                                 index(mucha->position().y(), mucha->position().x()));
+            connect(mucha, &Mucha::statusDeadChanged, [this](const bool isDead) {
+                if (isDead) {
+                    for (auto t = m_plot.begin(); t != m_plot.end(); t++) {
+                        emit dataChanged(index(t.key().y(), t.key().x()),
+                                         index(t.key().y(), t.key().x()));
+                    }
+                }
             });
 
             mucha->moveToThread(thread);
@@ -115,21 +129,19 @@ void AppEngine::startSimulation()
 
 void AppEngine::stopSimulation()
 {
+    QMutexLocker m(&m_mutexStop);
+    emit simulationStoped();
+
     if (m_poolThreadMucha.isEmpty()) {
         return;
     }
 
-    QMutexLocker m(&m_mutexStop);
-
-    emit simulationStoped();
-
-    for (auto const t: m_poolThreadMucha) {
-        t->wait();
-        t->deleteLater();
+   for (auto const t: m_poolThreadMucha) {
+       t->quit();
+       t->wait();
     }
 
     m_poolThreadMucha.clear();
-
 }
 
 QVariant AppEngine::data(const QModelIndex &index, int role) const
@@ -160,4 +172,19 @@ int AppEngine::rowCount(const QModelIndex &) const
 int AppEngine::columnCount(const QModelIndex &) const
 {
     return m_settings.plotSize.width();
+}
+
+
+quint64 AppEngine::flightPlanningTimeSec() const {
+    return m_settings.flightPlanningTimeSec;
+}
+
+void AppEngine::setFlightPlanningTimeSec(const quint64 s)
+{
+    m_settings.flightPlanningTimeSec = s;
+}
+
+bool AppEngine::isStoped() const
+{
+    return m_poolThreadMucha.isEmpty();
 }

@@ -15,10 +15,9 @@ int main(int argc, char *argv[])
     QMap<QPoint, quint64> startPos;
     startPos[QPoint(0, 1)] = 2;
     startPos[QPoint(0, 2)] = 2;
-    startPos[QPoint(0, 3)] = 1;
+    startPos[QPoint(0, 3)] = 2;
     AppSettings settings{QSize(5, 5), 5, 5, startPos};
     AppEngine flySimulator(settings, &app);
-    flySimulator.startSimulation();
     engine.rootContext()->setContextProperty(QStringLiteral("flySimulator"), &flySimulator);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
