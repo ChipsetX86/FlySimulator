@@ -78,9 +78,10 @@ void AppEngine::startSimulation()
 
     stopSimulation();
 
-    for (auto& m: m_plot) {
-        qDeleteAll(m);
-        m.clear();
+    for (auto& listM: m_plot) {
+        for (auto m: listM) {
+            m->deleteLater();
+        }
     }
 
     for (int i = 0; i < m_settings.plotSize.width(); ++i) {
@@ -90,7 +91,6 @@ void AppEngine::startSimulation()
     }
 
     for (auto const &pos: m_settings.startPositionInPlot.keys()) {
-        qDebug() << "create" << pos << m_settings.startPositionInPlot.value(pos);
         auto const countMucha = m_settings.startPositionInPlot.value(pos);
         for (quint64 i = 0; i < countMucha; ++i) {
             auto thread = new QThread(this);
@@ -131,11 +131,11 @@ void AppEngine::startSimulation()
 void AppEngine::stopSimulation()
 {
     QMutexLocker m(&m_mutexStop);
-    emit simulationStartStoped();
-
     if (m_poolThreadMucha.isEmpty()) {
         return;
     }
+
+    emit simulationStartStoped();
 
    for (auto const t: m_poolThreadMucha) {
        t->quit();
@@ -201,7 +201,6 @@ void AppEngine::setStartPosition(const QString &map)
             if (list.isEmpty()) {
                 m_settings.startPositionInPlot[QPoint(i, j)] = 0;
             } else {
-                qDebug() << list.first().toInt();
                 m_settings.startPositionInPlot[QPoint(i, j)] = list.first().toInt();
                 list.pop_front();
             }

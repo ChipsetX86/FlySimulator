@@ -58,102 +58,123 @@ ApplicationWindow {
                 }
             }
 
-            Button {
-                id: buttonStop
-                text: "Stop"
-                enabled: true
+            Column {
                 anchors {
                     bottom: parent.bottom
                     left: parent.left
                     right: parent.right
                 }
-                onClicked: {
-                    console.log("Click stop");
-                    flySimulator.stopSimulation();
-                    mainTable.forceLayout()
 
+                Button {
+                    id: buttonStop
+                    text: "Stop"
+                    enabled: true
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                    }
+                    onClicked: {
+                        flySimulator.stopSimulation();
+                        mainTable.forceLayout()
+
+                    }
+                }
+
+                Button {
+                    id: buttonBack
+                    text: "Back"
+                    enabled: true
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                    }
+                    onClicked: {
+                       flySimulator.stopSimulation()
+                       stackView.push(startPage)
+                    }
                 }
             }
-
         }
     }
 
     StackView {
         id: stackView
         anchors.fill: parent
-        initialItem: Component {
-            id: page
-            Column {
+        initialItem: startPage
+    }
+
+    Component {
+        id: startPage
+        Column {
+            padding: 5
+            spacing: 5
+
+            Text {
+                text: "Width"
+            }
+
+            SpinBox {
+                id: widthSimulationTable
+                value: 5
+                stepSize: 1
+                anchors.left: parent.left
+                anchors.right: parent.right
+            }
+
+            Text {
+                text: "Height"
+            }
+
+            SpinBox {
+                id: heightSimulationTable
+                value: 5
+                stepSize: 1
+                anchors.left: parent.left
+                anchors.right: parent.right
+            }
+
+            Text {
+                text: "Time fly planing, sec"
+            }
+
+            SpinBox {
+                id: timeFlyPlaningimulation
+                value: 5
+                stepSize: 1
+                anchors.left: parent.left
+                anchors.right: parent.right
+            }
+
+            Text {
+                text: "Start position, format 0:2:3..."
+            }
+
+            TextEdit {
+                id: startPosition
                 padding: 5
-                spacing: 5
+                text: "2:2:2:0:0:0:0:0:0"
+                anchors.left: parent.left
+                anchors.right: parent.right
+            }
 
-                Text {
-                    text: "Width"
+            Button {
+                id: buttonStart
+                text: "Start"
+                onClicked: {
+                    console.log("Click start");
+                    flySimulator.setStartPosition(startPosition.text)
+                    flySimulator.flightPlanningTimeSec =
+                            timeFlyPlaningimulation.value
+                    flySimulator.plotSize =
+                            Qt.size(widthSimulationTable.value,
+                                    heightSimulationTable.value)
+                    flySimulator.startSimulation()
+
+                    stackView.push(simulation)
                 }
 
-                SpinBox {
-                    id: widthSimulationTable
-                    value: 5
-                    stepSize: 1
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                }
-
-                Text {
-                    text: "Height"
-                }
-
-                SpinBox {
-                    id: heightSimulationTable
-                    value: 5
-                    stepSize: 1
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                }
-
-                Text {
-                    text: "Time fly planing, sec"
-                }
-
-                SpinBox {
-                    id: timeFlyPlaningimulation
-                    value: 5
-                    stepSize: 1
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                }
-
-                Text {
-                    text: "Start position, format 0:2:3..."
-                }
-
-                TextEdit {
-                    id: startPosition
-                    padding: 5
-                    text: "2:2:2:0:0:0:0:0:0"
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                }
-
-                Button {
-                    id: buttonStart
-                    text: "Start"
-                    onClicked: {
-                        console.log("Click start");
-                        flySimulator.setStartPosition(startPosition.text)
-                        flySimulator.flightPlanningTimeSec =
-                                timeFlyPlaningimulation.value
-                        flySimulator.plotSize =
-                                Qt.size(widthSimulationTable.value,
-                                        heightSimulationTable.value)
-                        flySimulator.startSimulation()
-
-                        stackView.push(simulation)
-                    }
-
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                }
+                anchors.left: parent.left
+                anchors.right: parent.right
             }
         }
     }
